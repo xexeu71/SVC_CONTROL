@@ -2564,6 +2564,7 @@
               <button type="button" class="fd-ciclo-pill" data-ciclo="AM" onclick="selecionarCicloFechamento('AM', this)">☀️ AM</button>
               <button type="button" class="fd-ciclo-pill" data-ciclo="PM" onclick="selecionarCicloFechamento('PM', this)">🌇 PM</button>
               <button type="button" class="fd-ciclo-pill" data-ciclo="SD" onclick="selecionarCicloFechamento('SD', this)">🌙 SD</button>
+              <button type="button" class="fd-ciclo-pill" data-ciclo="SDE" onclick="selecionarCicloFechamento('SDE', this)">🌃 SDE</button>
             </div>
             <input type="hidden" id="fd-ciclo-select" value="CHP">
           </div>
@@ -4658,7 +4659,7 @@ let schedulingColaboradores = []; // [{id, schedulingId, colaboradorId}] — ví
 let schedColabSelecionadosForm = []; // ids dos colaboradores selecionados no formulário atual (antes de salvar)
 
 // Estado do módulo Fechamento Diário
-const CICLOS_FECHAMENTO = ['CHP', 'AM', 'PM', 'SD'];
+const CICLOS_FECHAMENTO = ['CHP', 'AM', 'PM', 'SD', 'SDE'];
 const METAS_FECHAMENTO = { fag: 80, oot: 85, tmec: 83 };
 let fechamentoCiclos = [];
 let fechamentosDiarios = [];
@@ -10377,7 +10378,7 @@ function exportarRelatorioFaltasRevisaoPontoCSV() {
 }
 
 // ════════════════════════════════════════
-//  FECHAMENTO DIÁRIO — ciclos (CHP/AM/PM/SD) e fechamento do dia (Estimado/Definitivo)
+//  FECHAMENTO DIÁRIO — ciclos (CHP/AM/PM/SD/SDE) e fechamento do dia (Estimado/Definitivo)
 // ════════════════════════════════════════
 
 async function carregarFechamentoCiclos() {
@@ -10507,7 +10508,7 @@ function setFechamentoDiarioSubTab(tab, btnEl) {
 
 // ── Visão de Ciclo ──
 
-const ICONES_CICLO_FECHAMENTO = { CHP: '🌅', AM: '☀️', PM: '🌇', SD: '🌙' };
+const ICONES_CICLO_FECHAMENTO = { CHP: '🌅', AM: '☀️', PM: '🌇', SD: '🌙', SDE: '🌃' };
 
 function gerarBlocoIndicadorHtml(prefixo, chave, label, target) {
   return `
