@@ -587,13 +587,15 @@
   .fd-dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
   .fd-dot.ok { background: #2e7d32; } .fd-dot.baixo { background: #c62828; } .fd-dot.neutro { background: #c4c8ce; }
   /* ===== Exportação do Dashboard (imagem para WhatsApp) ===== */
-  #fd-tab-dash.fd-exportando { position:absolute !important; left:0; top:0; z-index:99999; display:block !important; width:1280px !important; max-width:none !important; margin:0 !important; padding:26px 28px 32px !important; background:#EBEBEB !important; }
+  #fd-tab-dash.fd-exportando { position:absolute !important; left:0; top:0; z-index:99999; display:block !important; width:2000px !important; max-width:none !important; margin:0 !important; padding:26px 28px 32px !important; background:#EBEBEB !important; }
   #fd-tab-dash.fd-exportando #fd-dash-periodo-bar,
   #fd-tab-dash.fd-exportando button { display:none !important; }
   #fd-tab-dash.fd-exportando .fd-header-title { font-size:30px !important; }
   #fd-tab-dash.fd-exportando .fd-header-label { font-size:13px !important; }
   #fd-tab-dash.fd-exportando #fd-dash-fonte-badge { font-size:15px !important; padding:6px 12px !important; }
-  #fd-tab-dash.fd-exportando .section-label { font-size:16px !important; margin:24px 0 12px !important; }
+  #fd-tab-dash.fd-exportando .section-label { font-size:16px !important; margin:18px 0 10px !important; }
+  #fd-tab-dash.fd-exportando div[style*="height:270px"] { height:220px !important; }
+  #fd-tab-dash.fd-exportando [style*="margin-bottom:22px"] { margin-bottom:10px !important; }
   #fd-tab-dash.fd-exportando .fd-dash-grid { display:grid !important; grid-template-columns:repeat(6,minmax(0,1fr)) !important; gap:14px !important; }
   #fd-tab-dash.fd-exportando .fd-dash-tile { padding:20px 20px 18px !important; }
   #fd-tab-dash.fd-exportando .fd-kpi-label { font-size:14px !important; }
@@ -609,15 +611,18 @@
   #fd-tab-dash.fd-exportando .fd-dot { width:10px !important; height:10px !important; }
   #fd-tab-dash.fd-exportando .fd-dash-justif { display:flex !important; flex-wrap:wrap; gap:16px !important; align-items:flex-start; }
   #fd-tab-dash.fd-exportando .fd-export-col { flex:1 1 0; min-width:0; display:flex; flex-direction:column; gap:16px; }
-  #fd-tab-dash.fd-exportando .fd-dash-justif > .fd-justif-card.definitivo { flex:1 1 100%; }
-  #fd-tab-dash.fd-exportando .fd-justif-card { padding:20px 22px !important; margin:0 !important; }
-  #fd-tab-dash.fd-exportando .fd-justif-head { font-size:20px !important; margin-bottom:14px !important; }
+  #fd-tab-dash.fd-exportando .fd-dash-justif > .fd-justif-card.definitivo { flex:1 1 100%; display:grid !important; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; align-items:start; }
+  #fd-tab-dash.fd-exportando .fd-dash-justif > .fd-justif-card.definitivo .fd-justif-head { grid-column:1 / -1; margin-bottom:0 !important; }
+  #fd-tab-dash.fd-exportando .fd-dash-justif > .fd-justif-card.definitivo .fd-justif-item { margin:0 !important; height:100%; }
+  #fd-tab-dash.fd-exportando .fd-dash-grid > .fd-dash-tile .fd-stat-big { font-size:42px !important; }
+  #fd-tab-dash.fd-exportando .fd-justif-card { padding:16px 18px !important; margin:0 !important; }
+  #fd-tab-dash.fd-exportando .fd-justif-head { font-size:19px !important; margin-bottom:10px !important; }
   #fd-tab-dash.fd-exportando .fd-justif-head .fd-kpi-meta { font-size:13px !important; }
-  #fd-tab-dash.fd-exportando .fd-justif-item { padding:14px 16px !important; margin-bottom:12px !important; }
+  #fd-tab-dash.fd-exportando .fd-justif-item { padding:12px 14px !important; margin-bottom:10px !important; }
   #fd-tab-dash.fd-exportando .fd-justif-item:last-child { margin-bottom:0 !important; }
   #fd-tab-dash.fd-exportando .fd-justif-item-head { font-size:14px !important; margin-bottom:8px !important; }
   #fd-tab-dash.fd-exportando .fd-justif-item-head .badge { font-size:14px !important; padding:3px 10px !important; }
-  #fd-tab-dash.fd-exportando .fd-justif-texto { font-size:17px !important; line-height:1.55 !important; }
+  #fd-tab-dash.fd-exportando .fd-justif-texto { font-size:16px !important; line-height:1.5 !important; }
   .fd-dash-justif { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; }
   .fd-dash-periodo { display:flex; align-items:flex-end; gap:10px; flex-wrap:wrap; margin:-8px 0 18px; padding:11px 13px; background:#fff; border:1px solid rgba(45,50,119,.10); border-radius:14px; box-shadow:0 3px 12px rgba(45,50,119,.05); }
   .fd-dash-periodo-group { display:flex; flex-direction:column; gap:4px; }
@@ -11591,7 +11596,7 @@ function renderJustificativasDashboardFechamento(data) {
 // Durante a captura o painel é montado com largura fixa de 1280 px e letras maiores,
 // para ficar legível no WhatsApp. Os gráficos não são alterados: só se ajustam à largura
 // e voltam ao tamanho normal quando a imagem fica pronta.
-const FD_EXPORT_LARGURA = 1280;
+const FD_EXPORT_LARGURA = 2000;
 
 function fdPrepararJustificativasParaExportar() {
   const box = document.getElementById('fd-dash-justificativas');
@@ -11607,12 +11612,12 @@ function fdPrepararJustificativasParaExportar() {
     const meta = card.querySelector('.fd-justif-head .fd-kpi-meta');
     if (meta) meta.textContent = `${qtd} justificativa(s)`;
   });
-  // 3 colunas encaixadas: cada cartão vai para a coluna mais baixa (sem buracos).
+  // Até 5 colunas (uma por ciclo), encaixadas: cada cartão vai para a coluna mais baixa.
   const cards = Array.from(box.querySelectorAll(':scope > .fd-justif-card'));
   const comuns = cards.filter(c => !c.classList.contains('definitivo'));
   const definitivo = cards.find(c => c.classList.contains('definitivo'));
   if (!comuns.length) return;
-  const cols = Array.from({ length: Math.min(3, comuns.length) }, () => {
+  const cols = Array.from({ length: Math.min(5, comuns.length) }, () => {
     const d = document.createElement('div');
     d.className = 'fd-export-col';
     return d;
