@@ -122,6 +122,9 @@
 
   .page { display: none; padding: 24px 32px; max-width: 1900px; margin: 0 auto; }
   .page.active { display: block; }
+  .table-pager { display:flex; align-items:center; justify-content:center; gap:14px; padding:14px 0 4px; flex-wrap:wrap; }
+  .table-pager-info { font-size:13px; color:var(--text-muted); }
+  .table-pager .btn[disabled] { opacity:.45; cursor:not-allowed; }
 
   .section-label { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 12px; }
   .card { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); }
@@ -4837,6 +4840,76 @@ const anomaliasDataLabelsPlugin = {
   }
 };
 
+// ===== Paginação genérica de tabelas =====
+// Renderiza só uma página de linhas por vez, o que deixa as tabelas grandes
+// muito mais rápidas. Uso: const pagina = paginarTabela('tbody-x', lista, renderX);
+const ITENS_POR_PAGINA_TABELA = 50;
+const paginacaoTabelas = {};
+
+function paginarTabela(tbodyId, lista, rerender) {
+  const tbody = document.getElementById(tbodyId);
+  const estado = paginacaoTabelas[tbodyId] || (paginacaoTabelas[tbodyId] = { pagina: 1 });
+  estado.rerender = rerender;
+
+  const total = (lista || []).length;
+  const totalPaginas = Math.max(1, Math.ceil(total / ITENS_POR_PAGINA_TABELA));
+  if (estado.pagina > totalPaginas) estado.pagina = totalPaginas;
+  if (estado.pagina < 1) estado.pagina = 1;
+
+  const inicio = (estado.pagina - 1) * ITENS_POR_PAGINA_TABELA;
+  const fatia = (lista || []).slice(inicio, inicio + ITENS_POR_PAGINA_TABELA);
+
+  if (tbody) {
+    const tabela = tbody.closest('table');
+    const ancora = tabela?.closest('.table-wrap') || tabela;
+    let pager = document.getElementById(`pager-${tbodyId}`);
+    if (!pager && ancora) {
+      pager = document.createElement('div');
+      pager.id = `pager-${tbodyId}`;
+      pager.className = 'table-pager';
+      ancora.insertAdjacentElement('afterend', pager);
+    }
+    if (pager) {
+      if (totalPaginas <= 1) {
+        pager.style.display = 'none';
+        pager.innerHTML = '';
+      } else {
+        const fim = Math.min(inicio + ITENS_POR_PAGINA_TABELA, total);
+        pager.style.display = '';
+        pager.innerHTML = `
+          <button class="btn btn-secondary btn-sm" ${estado.pagina <= 1 ? 'disabled' : ''} onclick="mudarPaginaTabela('${tbodyId}', -1)">‹ Anterior</button>
+          <span class="table-pager-info">Página ${estado.pagina} de ${totalPaginas} · ${inicio + 1}–${fim} de ${total}</span>
+          <button class="btn btn-secondary btn-sm" ${estado.pagina >= totalPaginas ? 'disabled' : ''} onclick="mudarPaginaTabela('${tbodyId}', 1)">Próxima ›</button>`;
+      }
+    }
+  }
+  return fatia;
+}
+
+function mudarPaginaTabela(tbodyId, delta) {
+  const estado = paginacaoTabelas[tbodyId];
+  if (!estado) return;
+  estado.pagina += delta;
+  if (typeof estado.rerender === 'function') estado.rerender();
+  const tbody = document.getElementById(tbodyId);
+  const ancora = tbody?.closest('.table-wrap') || tbody?.closest('table');
+  if (ancora) ancora.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// Ao mudar busca/filtros de uma aba, volta as tabelas dela para a página 1.
+function resetarPaginacaoDoEvento(event) {
+  const alvo = event.target;
+  if (!alvo || alvo.closest('.table-pager')) return;
+  const pagina = alvo.closest('.page');
+  if (!pagina) return;
+  Object.keys(paginacaoTabelas).forEach(id => {
+    const tbody = document.getElementById(id);
+    if (tbody && pagina.contains(tbody)) paginacaoTabelas[id].pagina = 1;
+  });
+}
+document.addEventListener('input', resetarPaginacaoDoEvento, true);
+document.addEventListener('change', resetarPaginacaoDoEvento, true);
+
 function toast(msg, tipo='') {
   const el = document.getElementById('toast');
   if (!el) return;
@@ -6020,12 +6093,13 @@ function renderAnomalias() {
   atualizarPainelSyncAnomalias(lista.length);
 
   const tbody = document.getElementById('tbody-anomalias');
+  const paginaAnom = paginarTabela('tbody-anomalias', lista, renderAnomalias);
   if (!lista.length) {
     tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">✅</div><p>Nenhuma ofensa de ponto encontrada</p><span>Nenhum registro para os filtros atuais</span></div></td></tr>`;
     return;
   }
 
-  tbody.innerHTML = lista.map(a => {
+  tbody.innerHTML = paginaAnom.map(a => {
     const extAnomalia = normalizeExt(a.ext);
     const head = heads.find(h => normalizeExt(h.ext) === extAnomalia) || {};
     const nomeVisual = head.nome
@@ -6739,8 +6813,9 @@ function renderHistoricoMedidasCentral(){
     if(busca&&![m.colaborador_nome,m.ext,m.tipo_medida,m.motivo,m.observacao,g].some(v=>lower(v||'').includes(busca)))return false;
     return true;
   });
+  const paginaMed=paginarTabela('tbody-medidas-historico',lista,renderHistoricoMedidasCentral);
   if(!lista.length){tbody.innerHTML='<tr><td colspan="7"><div class="med-empty">Nenhuma medida registrada com esses filtros.</div></td></tr>';return;}
-  tbody.innerHTML=lista.map(m=>{
+  tbody.innerHTML=paginaMed.map(m=>{
     const o=medidaOrigemRegistro(m),g=asText(m.gestor||heads.find(h=>String(h.id)===String(m.colaborador_id))?.gestor)||'—';
     const dt=m.data_aplicacao||m.created_at,d=dt?new Date(dt).toLocaleDateString('pt-BR'):'—';
     const det=[m.motivo,m.observacao].filter(Boolean).join(' · ')||'—';
@@ -7770,11 +7845,13 @@ function renderTabelaAbsenteismo(lista) {
   const tbody = document.getElementById('tbody-abs');
   if (!tbody) return;
   if (!lista.length) {
+    paginarTabela('tbody-abs', [], () => renderTabelaAbsenteismo(lista));
     tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">🗂️</div><p>Nenhum registro de absenteísmo no período filtrado</p></div></td></tr>`;
     return;
   }
   const ordenada = [...lista].sort((a, b) => (b.dataAbs || '').localeCompare(a.dataAbs || ''));
-  tbody.innerHTML = ordenada.map(a => {
+  const paginaAbs = paginarTabela('tbody-abs', ordenada, () => renderTabelaAbsenteismo(lista));
+  tbody.innerHTML = paginaAbs.map(a => {
     const h = heads.find(hh => String(hh.id) === String(a.colaboradorId)) || null;
     const turno = h ? turnos.find(t => t.id === h.turnoId) : (a.turnoId ? turnos.find(t => t.id === a.turnoId) : null);
     const gestor = h ? h.gestor : a.gestor;
@@ -9518,13 +9595,14 @@ function renderDiaristas() {
 
   const tbody = document.getElementById('tbody-diaristas');
   if (!tbody) return;
+  const paginaTabela = paginarTabela('tbody-diaristas', lista, renderDiaristas);
 
   if (!lista.length) {
     tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">👷</div><p>${diaristas.length ? 'Nenhum registro encontrado' : 'Nenhum diarista lançado'}</p><span>${diaristas.length ? 'Tente outros termos' : 'Clique em "Lançar Diaristas do Dia" para começar'}</span></div></td></tr>`;
     return;
   }
 
-  tbody.innerHTML = lista.map(d => {
+  tbody.innerHTML = paginaTabela.map(d => {
     const id = safeId(d.id);
     const dataFmt = d.data ? d.data.split('-').reverse().join('/') : '—';
     const horario = (d.horaInicio && d.horaFim) ? `${d.horaInicio.slice(0,5)} às ${d.horaFim.slice(0,5)}` : '—';
@@ -10736,6 +10814,7 @@ function renderHistoricoFechamentoCiclos() {
 
   const tbody = document.getElementById('tbody-fd-historico');
   if (!tbody) return;
+  const paginaTabela = paginarTabela('tbody-fd-historico', lista, renderHistoricoFechamentoCiclos);
 
   if (!lista.length) {
     tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><p>Nenhum ciclo lançado nesse período</p></div></td></tr>`;
@@ -10748,7 +10827,7 @@ function renderHistoricoFechamentoCiclos() {
     return `<span class="badge ${cor}">${valor}%</span>`;
   };
 
-  tbody.innerHTML = lista.map(r => {
+  tbody.innerHTML = paginaTabela.map(r => {
     const dataFmt = r.data.split('-').reverse().join('/');
     const d = calcularDispersao(r.volumeProjetado, r.volumeAtendido);
     const fmtNum = v => (v === null || v === undefined) ? '—' : Number(v).toLocaleString('pt-BR');
@@ -11733,6 +11812,7 @@ function renderUsuariosSistema() {
 
   const tbody = document.getElementById('tbody-usuarios');
   if (!tbody) return;
+  if (!lista.length) paginarTabela('tbody-usuarios', [], renderUsuariosSistema);
 
   if (!lista.length) {
     tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="empty-icon">🔐</div><p>${usuariosSistema.length ? 'Nenhum resultado para a busca' : 'Nenhum usuário cadastrado'}</p><span>${usuariosSistema.length ? 'Tente outro termo' : 'Preencha o formulário acima para começar'}</span></div></td></tr>`;
@@ -11740,7 +11820,7 @@ function renderUsuariosSistema() {
   }
 
   const ordenada = [...lista].sort((a, b) => (a.nome || '').localeCompare(b.nome || ''));
-  tbody.innerHTML = ordenada.map(u => {
+  tbody.innerHTML = paginarTabela('tbody-usuarios', ordenada, renderUsuariosSistema).map(u => {
     const uid = safeId(u.auth_uid);
     const perfilLabel = PERFIS_ACESSO[u.perfil]?.label || u.perfil || '—';
     const statusBadgeHtml = u.ativo === false
@@ -12097,12 +12177,13 @@ function renderHeads() {
   document.getElementById('hc-count').textContent = `${lista.length} colaborador${lista.length!==1?'es':''}`;
 
   const tbody = document.getElementById('tbody-headcount');
+  const paginaHC = paginarTabela('tbody-headcount', lista, renderHeads);
   if (!lista.length) {
     tbody.innerHTML = `<tr><td colspan="13"><div class="empty-state"><div class="empty-icon">👤</div><p>${heads.length?'Nenhum resultado para os filtros':'Nenhum colaborador cadastrado'}</p><span>${heads.length?'Tente outros filtros':'Preencha o formulário acima para começar'}</span></div></td></tr>`;
     return;
   }
 
-  tbody.innerHTML = lista.map(h => {
+  tbody.innerHTML = paginaHC.map(h => {
     const id = safeId(h.id);
     const ext = normalizeExt(h.ext);
     return `<tr>
@@ -13940,13 +14021,14 @@ function renderSchedulings() {
 
   const tbody = document.getElementById('tbody-schedulings');
   if (!tbody) return;
+  const paginaTabela = paginarTabela('tbody-schedulings', lista, renderSchedulings);
 
   if (!lista.length) {
     tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">📅</div><p>${schedulings.length ? 'Nenhum scheduling encontrado' : 'Nenhum scheduling cadastrado'}</p><span>${schedulings.length ? 'Tente outros termos' : 'Preencha o formulário acima para começar'}</span></div></td></tr>`;
     return;
   }
 
-  tbody.innerHTML = lista.map(s => {
+  tbody.innerHTML = paginaTabela.map(s => {
     const t = turnos.find(tt => tt.id === s.turnoId);
     const nomeTurno = t ? `<span class="badge" style="background:${t.cor}22;color:${t.cor};border:1px solid ${t.cor}44"><span class="turno-dot" style="background:${t.cor}"></span>${escapeHtml(t.nome)}</span>` : '<span style="color:var(--text-hint)">—</span>';
     const escalaLabel = t ? escalaBadge(t.escala) : '—';
