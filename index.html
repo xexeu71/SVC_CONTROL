@@ -586,9 +586,39 @@
   .fd-dash-mini:last-child { border-bottom: none; }
   .fd-dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
   .fd-dot.ok { background: #2e7d32; } .fd-dot.baixo { background: #c62828; } .fd-dot.neutro { background: #c4c8ce; }
-  .fd-dash-justif { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items:start; }
-  .fd-dash-justif .fd-justif-card.definitivo { grid-column: 1 / -1; }
-  @media (max-width:950px) { .fd-dash-justif { grid-template-columns: 1fr; } }
+  /* ===== Exportação do Dashboard (imagem para WhatsApp) ===== */
+  #fd-tab-dash.fd-exportando { position:absolute !important; left:0; top:0; z-index:99999; display:block !important; width:1280px !important; max-width:none !important; margin:0 !important; padding:26px 28px 32px !important; background:#EBEBEB !important; }
+  #fd-tab-dash.fd-exportando #fd-dash-periodo-bar,
+  #fd-tab-dash.fd-exportando button { display:none !important; }
+  #fd-tab-dash.fd-exportando .fd-header-title { font-size:30px !important; }
+  #fd-tab-dash.fd-exportando .fd-header-label { font-size:13px !important; }
+  #fd-tab-dash.fd-exportando #fd-dash-fonte-badge { font-size:15px !important; padding:6px 12px !important; }
+  #fd-tab-dash.fd-exportando .section-label { font-size:16px !important; margin:24px 0 12px !important; }
+  #fd-tab-dash.fd-exportando .fd-dash-grid { display:grid !important; grid-template-columns:repeat(6,minmax(0,1fr)) !important; gap:14px !important; }
+  #fd-tab-dash.fd-exportando .fd-dash-tile { padding:20px 20px 18px !important; }
+  #fd-tab-dash.fd-exportando .fd-kpi-label { font-size:14px !important; }
+  #fd-tab-dash.fd-exportando .fd-kpi-meta { font-size:13px !important; }
+  #fd-tab-dash.fd-exportando .fd-dash-tile .fd-stat-big { font-size:38px !important; margin:8px 0 10px !important; }
+  #fd-tab-dash.fd-exportando .fd-progress { height:10px !important; }
+  #fd-tab-dash.fd-exportando .fd-dispersao-pill { font-size:16px !important; padding:8px 12px !important; white-space:nowrap !important; gap:4px !important; }
+  #fd-tab-dash.fd-exportando .fd-dash-ciclos { display:grid !important; grid-template-columns:repeat(5,minmax(0,1fr)) !important; gap:14px !important; }
+  #fd-tab-dash.fd-exportando .fd-dash-ciclo { padding:18px 18px 14px !important; }
+  #fd-tab-dash.fd-exportando .fd-dash-ciclo-head { font-size:20px !important; margin-bottom:10px !important; align-items:center; flex-wrap:nowrap; white-space:nowrap; gap:6px; }
+  #fd-tab-dash.fd-exportando .fd-dash-ciclo-head .fd-dispersao-pill { font-size:13px !important; padding:4px 8px !important; }
+  #fd-tab-dash.fd-exportando .fd-dash-mini { font-size:17px !important; padding:7px 0 !important; }
+  #fd-tab-dash.fd-exportando .fd-dot { width:10px !important; height:10px !important; }
+  #fd-tab-dash.fd-exportando .fd-dash-justif { display:flex !important; flex-wrap:wrap; gap:16px !important; align-items:flex-start; }
+  #fd-tab-dash.fd-exportando .fd-export-col { flex:1 1 0; min-width:0; display:flex; flex-direction:column; gap:16px; }
+  #fd-tab-dash.fd-exportando .fd-dash-justif > .fd-justif-card.definitivo { flex:1 1 100%; }
+  #fd-tab-dash.fd-exportando .fd-justif-card { padding:20px 22px !important; margin:0 !important; }
+  #fd-tab-dash.fd-exportando .fd-justif-head { font-size:20px !important; margin-bottom:14px !important; }
+  #fd-tab-dash.fd-exportando .fd-justif-head .fd-kpi-meta { font-size:13px !important; }
+  #fd-tab-dash.fd-exportando .fd-justif-item { padding:14px 16px !important; margin-bottom:12px !important; }
+  #fd-tab-dash.fd-exportando .fd-justif-item:last-child { margin-bottom:0 !important; }
+  #fd-tab-dash.fd-exportando .fd-justif-item-head { font-size:14px !important; margin-bottom:8px !important; }
+  #fd-tab-dash.fd-exportando .fd-justif-item-head .badge { font-size:14px !important; padding:3px 10px !important; }
+  #fd-tab-dash.fd-exportando .fd-justif-texto { font-size:17px !important; line-height:1.55 !important; }
+  .fd-dash-justif { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; }
   .fd-dash-periodo { display:flex; align-items:flex-end; gap:10px; flex-wrap:wrap; margin:-8px 0 18px; padding:11px 13px; background:#fff; border:1px solid rgba(45,50,119,.10); border-radius:14px; box-shadow:0 3px 12px rgba(45,50,119,.05); }
   .fd-dash-periodo-group { display:flex; flex-direction:column; gap:4px; }
   .fd-dash-periodo-label { font-size:9px; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:#667085; }
@@ -600,13 +630,13 @@
   .fd-dash-periodo-info { margin-left:auto; align-self:center; color:#667085; font-size:10px; font-weight:700; }
   @media (max-width:800px){ .fd-dash-periodo-info{width:100%;margin-left:0}.fd-dash-periodo{align-items:stretch} }
 
-  .fd-justif-card { border-radius: 16px; padding: 18px 20px; background: #fff; box-shadow: var(--shadow); border: 1.5px solid rgba(45,50,119,.10); border-left: 5px solid var(--meli-action); min-width:0; }
+  .fd-justif-card { border-radius: 16px; padding: 14px 16px; background: #fff; box-shadow: var(--shadow); border: 1.5px solid rgba(45,50,119,.06); border-left: 5px solid var(--meli-action); }
   .fd-justif-card.definitivo { border-left-color: #00875A; }
   .fd-justif-head { display: flex; justify-content: space-between; align-items: center; font-weight: 800; color: var(--meli-blue); margin-bottom: 10px; }
-  .fd-justif-item { padding: 12px 14px; border-radius: 10px; background: #f8f9fd; margin-bottom: 10px; }
+  .fd-justif-item { padding: 8px 10px; border-radius: 10px; background: #f8f9fd; margin-bottom: 8px; }
   .fd-justif-item:last-child { margin-bottom: 0; }
   .fd-justif-item-head { display: flex; justify-content: space-between; align-items: center; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; color: var(--text-muted); margin-bottom: 4px; }
-  .fd-justif-texto { font-size: 14px; line-height: 1.65; color: var(--text); white-space: pre-wrap; overflow-wrap:anywhere; }
+  .fd-justif-texto { font-size: 13px; line-height: 1.45; color: var(--text); white-space: pre-wrap; }
   .fd-justif-vazio { grid-column: 1 / -1; text-align: center; padding: 28px; color: var(--text-hint); font-size: 13px; background: #fff; border-radius: 16px; border: 1.5px dashed rgba(45,50,119,.15); }
 
   /* ── Revisão de Ponto — gavetas colapsáveis ── */
@@ -2670,9 +2700,7 @@
           </div>
           <div style="display:flex;align-items:center;gap:8px;padding-bottom:4px">
             <span id="fd-dash-fonte-badge" class="badge badge-gray">—</span>
-            <button type="button" class="btn btn-secondary btn-sm" data-fd-export onclick="exportarDashboardFechamentoPNG()">🖼️ Resumo PNG</button>
-            <button type="button" class="btn btn-secondary btn-sm" data-fd-export onclick="exportarJustificativasFechamentoPNG()">📝 Justificativas PNG</button>
-            <button type="button" class="btn btn-secondary btn-sm" data-fd-export onclick="imprimirRelatorioFechamento()">🖨️ Imprimir / PDF</button>
+            <button class="btn btn-secondary btn-sm" onclick="exportarDashboardFechamentoPNG()">🖼️ Exportar Dashboard</button>
           </div>
         </div>
       </div>
@@ -11559,150 +11587,128 @@ function renderJustificativasDashboardFechamento(data) {
     : '<div class="fd-justif-vazio">Nenhuma justificativa registrada nesse dia — todos os indicadores lançados atingiram 100% ou ainda não foram lançados.</div>';
 }
 
-// Exportações do fechamento: isoladas da tela e sem alterar os dados, gráficos ou filtros.
-function fdExportarData() {
-  return document.getElementById('fd-dash-data')?.value || hojeIsoLocal();
-}
-function fdClonarConteudoExportacao(soJustificativas = false) {
-  const fonte = document.getElementById(soJustificativas ? 'fd-dash-justificativas' : 'fd-dash-conteudo');
-  if (!fonte) throw new Error('Conteúdo do fechamento não encontrado.');
-  const clone = fonte.cloneNode(true);
-  if (soJustificativas) clone.classList.add('fd-dash-justif');
-  // Canvas fica vazio ao clonar; converter os gráficos existentes em imagens antes da captura.
-  if (!soJustificativas) {
-    const originais = Array.from(fonte.querySelectorAll('canvas'));
-    const copias = Array.from(clone.querySelectorAll('canvas'));
-    copias.forEach((c, i) => {
-      const original = originais[i];
-      if (!original) return;
-      try {
-        const img = document.createElement('img');
-        img.src = original.toDataURL('image/png');
-        img.alt = 'Gráfico de indicadores do fechamento';
-        img.style.cssText = 'width:100%;height:100%;object-fit:contain;display:block;';
-        c.replaceWith(img);
-      } catch (e) { console.warn('Gráfico não disponível para exportação', e); }
+// Exporta o Dashboard do dia numa imagem só (indicadores, ciclos, gráficos e justificativas).
+// Durante a captura o painel é montado com largura fixa de 1280 px e letras maiores,
+// para ficar legível no WhatsApp. Os gráficos não são alterados: só se ajustam à largura
+// e voltam ao tamanho normal quando a imagem fica pronta.
+const FD_EXPORT_LARGURA = 1280;
+
+function fdPrepararJustificativasParaExportar() {
+  const box = document.getElementById('fd-dash-justificativas');
+  if (!box) return;
+  const vazio = t => { const s = String(t || '').trim(); return !s || s === '-' || s === '—'; };
+  // Tira as justificativas preenchidas só com "-" e os cartões que ficarem vazios.
+  box.querySelectorAll('.fd-justif-card').forEach(card => {
+    card.querySelectorAll('.fd-justif-item').forEach(item => {
+      if (vazio(item.querySelector('.fd-justif-texto')?.textContent)) item.remove();
     });
+    const qtd = card.querySelectorAll('.fd-justif-item').length;
+    if (!qtd) { card.remove(); return; }
+    const meta = card.querySelector('.fd-justif-head .fd-kpi-meta');
+    if (meta) meta.textContent = `${qtd} justificativa(s)`;
+  });
+  // 3 colunas encaixadas: cada cartão vai para a coluna mais baixa (sem buracos).
+  const cards = Array.from(box.querySelectorAll(':scope > .fd-justif-card'));
+  const comuns = cards.filter(c => !c.classList.contains('definitivo'));
+  const definitivo = cards.find(c => c.classList.contains('definitivo'));
+  if (!comuns.length) return;
+  const cols = Array.from({ length: Math.min(3, comuns.length) }, () => {
+    const d = document.createElement('div');
+    d.className = 'fd-export-col';
+    return d;
+  });
+  box.innerHTML = '';
+  cols.forEach(c => box.appendChild(c));
+  comuns.forEach(card => cols.reduce((a, b) => (b.offsetHeight < a.offsetHeight ? b : a)).appendChild(card));
+  if (definitivo) box.appendChild(definitivo);
+}
+
+// Ajusta os gráficos ao tamanho atual do quadro e redesenha na hora, sem animação.
+function fdRedesenharGraficos() {
+  [typeof fdDashChartIndicadores !== 'undefined' ? fdDashChartIndicadores : null,
+   typeof fdDashChartVolume !== 'undefined' ? fdDashChartVolume : null].forEach(ch => {
+    if (!ch) return;
+    try { ch.resize(); ch.update('none'); } catch (e) { console.warn('Gráfico', e); }
+  });
+}
+
+async function exportarDashboardFechamentoPNG() {
+  const el = document.getElementById('fd-tab-dash');
+  if (!el) {
+    toast('Dashboard do fechamento não encontrado.', 'error');
+    return;
   }
-  return clone;
-}
-function fdExportarCabecalho(tipo) {
-  const data = fdExportarData().split('-').reverse().join('/');
-  const head = document.createElement('div');
-  head.className = 'fd-export-cabecalho';
-  const title = document.createElement('h1');
-  title.textContent = tipo === 'justificativas' ? 'Justificativas operacionais' : 'Resumo operacional do dia';
-  const info = document.createElement('p');
-  info.textContent = 'SRJ2 • ' + data + ' • ' + (document.getElementById('fd-dash-fonte-badge')?.textContent || 'Fechamento');
-  head.append(title, info);
-  return head;
-}
-function fdEstilosRelatorio() {
-  return `
-    *,*::before,*::after {box-sizing:border-box}
-    body {margin:0;background:#eef1f7;color:#1d2a44;font:14px/1.5 Inter,Arial,sans-serif}
-    .fd-export-pagina {background:#fff;max-width:1160px;margin:0 auto;padding:28px}
-    .fd-export-cabecalho {background:linear-gradient(120deg,#172b69,#3483fa);color:#fff;border-radius:14px;padding:23px 28px;margin-bottom:22px}
-    .fd-export-cabecalho h1 {font-size:26px;margin:0 0 5px;font-weight:800}
-    .fd-export-cabecalho p {margin:0;font-size:13px;opacity:.9}
-    .fd-export-pagina .fd-dash-justif {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:start}
-    .fd-export-pagina .fd-justif-card.definitivo {grid-column:1/-1}
-    .fd-export-pagina .fd-justif-card {background:#fff;border:1px solid #dce2ec;border-left:5px solid #3483fa;border-radius:12px;padding:18px 20px;min-width:0;break-inside:avoid;margin:0}
-    .fd-export-pagina .fd-justif-card.definitivo {border-left-color:#00875a;background:#f7fcf9}
-    .fd-export-pagina .fd-justif-head {display:flex;align-items:center;justify-content:space-between;gap:12px;font-weight:800;font-size:16px;color:#172b69;margin-bottom:14px}
-    .fd-export-pagina .fd-justif-item {background:#f5f7fb;border-radius:9px;padding:12px 14px;margin:0 0 10px;break-inside:avoid}
-    .fd-export-pagina .fd-justif-item:last-child {margin-bottom:0}
-    .fd-export-pagina .fd-justif-item-head {display:flex;justify-content:space-between;gap:10px;font-weight:800;color:#50617c;font-size:12px;margin-bottom:6px}
-    .fd-export-pagina .fd-justif-texto {white-space:pre-wrap;overflow-wrap:anywhere;font-size:14px;line-height:1.65;color:#253047}
-    .fd-export-pagina .badge {padding:3px 8px;border-radius:12px;font-size:11px;font-weight:800}
-    .fd-export-pagina .badge-red {background:#fee5e5;color:#ae2424}.fd-export-pagina .badge-green {background:#e3f5e9;color:#136e39}
-    .fd-export-pagina .fd-kpi-meta {font-size:11px;color:#667085}
-    .fd-export-pagina .fd-dash-grid {display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-bottom:18px}
-    .fd-export-pagina .fd-dash-tile {padding:13px;border:1px solid #dce2ec;border-radius:12px;min-width:0;background:#fff}
-    .fd-export-pagina .fd-stat-big {font-weight:800;font-size:23px}
-    .fd-export-pagina .fd-dash-ciclos {display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
-    .fd-export-pagina .fd-dash-ciclo {background:#fff;border:1px solid #dce2ec;padding:12px;border-radius:12px;min-width:0}
-    .fd-export-pagina .fd-dash-ciclo-head,.fd-export-pagina .fd-dash-mini {display:flex;justify-content:space-between;gap:4px}
-    .fd-export-pagina .fd-dash-mini {font-size:11px;border-bottom:1px solid #eee;padding:4px 0}
-    .fd-export-pagina .fd-dash-ciclo-head {font-size:12px;font-weight:800;margin-bottom:6px}
-    .fd-export-pagina .section-label {font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:#596985;font-weight:800;margin:20px 0 10px}
-    .fd-export-pagina .card {border:1px solid #dce2ec;border-radius:12px;box-shadow:none}
-    .fd-export-pagina .fd-dot {display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px}
-    .fd-export-pagina .fd-dot.ok {background:green}.fd-export-pagina .fd-dot.baixo {background:#d22}
-    .fd-export-pagina .fd-dispersao-pill {font-size:11px;padding:4px 8px;border-radius:20px}
-    .fd-export-pagina .fd-dispersao-pill.neg {background:#fee5e5;color:#ae2424}
-    .fd-export-pagina .fd-dispersao-pill.pos {background:#e3f5e9;color:#136e39}
-    .fd-export-pagina .fd-progress {height:7px;background:#e5e7eb;border-radius:6px;overflow:hidden}
-    .fd-export-pagina .fd-progress-fill {height:100%;background:#3483fa}
-    .fd-export-pagina .fd-justif-vazio {padding:18px;border:1px dashed #bbc4d3;border-radius:10px;grid-column:1/-1}
-    @media(max-width:800px){.fd-export-pagina .fd-dash-justif{grid-template-columns:1fr}.fd-export-pagina .fd-dash-grid{grid-template-columns:repeat(2,1fr)}.fd-export-pagina .fd-dash-ciclos{grid-template-columns:repeat(2,1fr)}}
-    @page {size:A4 portrait;margin:12mm}
-    @media print {body{background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}.fd-export-pagina{max-width:none;padding:0}.fd-export-pagina .fd-dash-justif{grid-template-columns:1fr}.fd-export-pagina .fd-justif-card{break-inside:avoid;page-break-inside:avoid;margin-bottom:8px}.fd-export-pagina .fd-dash-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.fd-export-pagina .fd-dash-ciclos{grid-template-columns:repeat(3,minmax(0,1fr))}.fd-export-pagina .fd-export-cabecalho{break-after:avoid}.fd-export-pagina .card{break-inside:avoid}.fd-export-pagina .fd-dash-justif .fd-justif-card.definitivo{grid-column:auto}}
-  `;
-}
-function fdCriarRelatorio(isJustificativas = false) {
-  const wrapper = document.createElement('div');
-  wrapper.className = 'fd-export-pagina';
-  wrapper.appendChild(fdExportarCabecalho(isJustificativas ? 'justificativas' : 'resumo'));
-  if (isJustificativas) {
-    const heading = document.createElement('h2');
-    heading.style.cssText = 'font-size:16px;margin:0 0 15px;color:#1a2b6d';
-    heading.textContent = 'Registro de ocorrências por ciclo e fechamento definitivo';
-    wrapper.append(heading);
-  }
-  wrapper.appendChild(fdClonarConteudoExportacao(isJustificativas));
-  return wrapper;
-}
-async function fdBaixarPNG(isJustificativas) {
-  const btns = Array.from(document.querySelectorAll('[data-fd-export]'));
+
+  const btn = document.querySelector('button[onclick="exportarDashboardFechamentoPNG()"]');
+  const textoOriginal = btn ? btn.innerHTML : '';
+  const data = document.getElementById('fd-dash-data')?.value || hojeIsoLocal();
+  const lugar = document.createComment('fd-dash-lugar');
+  const scrollAntes = window.scrollY;
+  let movido = false;
+  const esperar = ms => new Promise(r => setTimeout(r, ms));
+
   try {
-    btns.forEach(b => {b.disabled = true;});
-    toast('Preparando imagem legível...', '');
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = '⏳ Gerando PNG...';
+    }
+
+    toast('Preparando exportação do dashboard...', '');
     await ensureHtml2Canvas();
-    const relatorio = fdCriarRelatorio(isJustificativas);
-    const host = document.createElement('div');
-    host.style.cssText = 'position:absolute;left:0;top:0;width:1160px;z-index:-1;pointer-events:none;background:#fff;';
-    const style = document.createElement('style');
-    style.textContent = fdEstilosRelatorio();
-    host.append(style, relatorio);
-    document.body.appendChild(host);
-    try {
-      await document.fonts?.ready;
-      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-      // Limitar dimensão máxima para não travar handhelds/PCs com pouca memória.
-      const maxDim = Math.max(relatorio.scrollHeight, relatorio.scrollWidth);
-      const scale = Math.min(2.5, 14000 / Math.max(maxDim, 1));
-      const canvas = await window.html2canvas(relatorio, {backgroundColor:'#ffffff',scale:Math.max(1,scale),useCORS:true,logging:false,scrollX:0,scrollY:0,windowWidth:1160});
-      const blob = await new Promise((resolve,reject) => canvas.toBlob(b=>b?resolve(b):reject(new Error('PNG não gerado')), 'image/png'));
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href=url;
-      link.download = `${isJustificativas ? 'justificativas' : 'dashboard'}-fechamento-${fdExportarData()}.png`;
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      setTimeout(()=>URL.revokeObjectURL(url),60000);
-      toast('Imagem exportada com sucesso!', 'success');
-    } finally { host.remove(); }
-  } catch (e) {
-    console.error('Erro de exportação do fechamento:',e);
-    toast('Falha na exportação: '+(e?.message||e),'error');
-  } finally {btns.forEach(b=>{b.disabled=false;});}
-}
-async function exportarDashboardFechamentoPNG() { return fdBaixarPNG(false); }
-async function exportarJustificativasFechamentoPNG() { return fdBaixarPNG(true); }
-function imprimirRelatorioFechamento() {
-  // Abrir na interação do usuário para evitar bloqueio de pop-up.
-  const janela = window.open('', '_blank');
-  if (!janela) {toast('Permita pop-ups para imprimir o relatório.', 'error');return;}
-  try {
-    const resumo=fdCriarRelatorio(false);
-    const html='<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><title>Fechamento SRJ2 '+fdExportarData()+'</title><style>'+fdEstilosRelatorio()+'</style></head><body>'+resumo.outerHTML+'</body></html>';
-    janela.document.open();janela.document.write(html);janela.document.close();
-    janela.focus();
-    // Impressão nativa conserva texto pesquisável e cria páginas A4 reais.
-    setTimeout(()=>{try{if(!janela.closed) janela.print();}catch(e){}},650);
-  } catch (e) {janela.close();console.error(e);toast('Falha ao preparar impressão: '+e.message,'error');}
+
+    if (typeof window.html2canvas !== 'function') {
+      throw new Error('html2canvas não ficou disponível após o carregamento.');
+    }
+
+    // Leva o painel para o topo da página, com largura fixa, só enquanto tira a foto.
+    el.parentNode.insertBefore(lugar, el);
+    document.body.appendChild(el);
+    movido = true;
+    el.classList.add('fd-exportando');
+    window.scrollTo(0, 0);
+    fdPrepararJustificativasParaExportar();
+    await esperar(150);
+    fdRedesenharGraficos();
+    await esperar(450);
+    fdRedesenharGraficos(); // garante os gráficos desenhados por inteiro (sem animação) na foto
+    try { await document.fonts?.ready; } catch (_) {}
+
+    const canvas = await window.html2canvas(el, {
+      backgroundColor: '#EBEBEB',
+      scale: 2,
+      useCORS: true,
+      logging: false,
+      width: FD_EXPORT_LARGURA,
+      windowWidth: Math.max(window.innerWidth, FD_EXPORT_LARGURA),
+      scrollX: 0,
+      scrollY: 0
+    });
+
+    const link = document.createElement('a');
+    link.download = `dashboard-fechamento-${data}.png`;
+    link.href = canvas.toDataURL('image/png');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast('Dashboard exportado com sucesso!', 'success');
+  } catch (err) {
+    console.error('Erro exportação Fechamento Diário:', err);
+    toast('Erro ao carregar/usar a biblioteca de exportação: ' + (err?.message || err), 'error');
+  } finally {
+    // Devolve o painel ao lugar e redesenha as justificativas no formato normal.
+    el.classList.remove('fd-exportando');
+    if (movido && lugar.parentNode) {
+      lugar.parentNode.insertBefore(el, lugar);
+      lugar.remove();
+    }
+    try { renderJustificativasDashboardFechamento(data); } catch (_) {}
+    setTimeout(fdRedesenharGraficos, 100);
+    window.scrollTo(0, scrollAntes);
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = textoOriginal || '🖼️ Exportar Dashboard';
+    }
+  }
 }
 
 function renderGraficosDashboardFechamento(dataFim) {
