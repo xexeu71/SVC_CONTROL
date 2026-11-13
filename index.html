@@ -4329,9 +4329,11 @@ async function aplicarSessao(session) {
       appInicializado = true;
     }
 
-    const aba = primeiraAbaPermitida();
+    // Abre a aba do link (ex.: /anomalias). Sem aba no link, abre a primeira permitida.
+    const abaLink = abaDaUrl();
+    const aba = abaLink && abaLink !== 'home' ? abaLink : primeiraAbaPermitida();
     const btn = document.querySelector(`.tab-btn[data-tab="${aba}"]`);
-    await switchTab(aba, btn);
+    await switchTab(aba, btn, { historico: 'replace' });
   } catch (error) {
     console.error(error);
     await db.auth.signOut();
@@ -5132,12 +5134,44 @@ async function carregarDadosScheduling() {
   }
 }
 
-async function switchTab(tab, btn) {
+// ===== Link próprio para cada aba =====
+// Cada aba fica em seu próprio endereço (ex.: /anomalias, /headcount).
+// A Home fica em "/". A Cloudflare entrega o index.html para qualquer caminho,
+// então dá para abrir, favoritar e compartilhar o link direto de uma aba.
+const ABAS_COM_ROTA = ['home', 'headcount', 'turnos', 'scheduling', 'abs', 'diaristas', 'anomalias', 'medidas',
+  'insucesso', 'insucesso-xpt', 'yms', 'revisao-ponto', 'fechamento-diario', 'dit', 'monitor', 'crachas', 'usuarios'];
+
+function abaDaUrl() {
+  let slug = '';
+  try { slug = decodeURIComponent(window.location.pathname); } catch (_) { slug = window.location.pathname; }
+  slug = slug.replace(/^\/+|\/+$/g, '').replace(/\.html$/, '').toLowerCase();
+  if (slug === '' || slug === 'index') return 'home';
+  return ABAS_COM_ROTA.includes(slug) ? slug : null;
+}
+
+function atualizarUrlDaAba(tab, modo = 'push') {
+  if (modo === 'none' || !ABAS_COM_ROTA.includes(tab)) return;
+  const destino = tab === 'home' ? '/' : `/${tab}`;
+  if (window.location.pathname === destino) return;
+  try {
+    if (modo === 'replace') window.history.replaceState({ tab }, '', destino);
+    else window.history.pushState({ tab }, '', destino);
+  } catch (_) {}
+}
+
+window.addEventListener('popstate', () => {
+  if (!usuarioAtual) return;
+  const tab = abaDaUrl() || 'home';
+  switchTab(tab, document.querySelector(`.tab-btn[data-tab="${tab}"]`), { historico: 'replace' });
+});
+
+async function switchTab(tab, btn, opcoes = {}) {
   if (usuarioAtual && !podeAcessarTab(tab)) {
     toast('Seu perfil não tem acesso a esta aba.', 'error');
     tab = primeiraAbaPermitida();
     btn = document.querySelector(`.tab-btn[data-tab="${tab}"]`);
   }
+  atualizarUrlDaAba(tab, opcoes.historico || 'push');
 
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
