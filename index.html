@@ -4942,16 +4942,33 @@ function esconderLoading() {
 // Busca TODAS as linhas de uma tabela, contornando o limite padrão de 1000
 // linhas por chamada do Supabase. "factory" deve retornar uma query nova
 // a cada chamada (sem .range() ainda aplicado).
+// Depois da primeira página, busca as próximas 4 de cada vez, em paralelo,
+// em vez de esperar uma terminar para pedir a outra.
 async function buscarTodasLinhas(factory) {
   const TAMANHO_PAGINA = 1000;
-  let todasLinhas = [];
-  let inicio = 0;
-  while (true) {
+  const PAGINAS_EM_PARALELO = 4;
+  const buscarPagina = async (indice) => {
+    const inicio = indice * TAMANHO_PAGINA;
     const { data, error } = await factory().range(inicio, inicio + TAMANHO_PAGINA - 1);
     if (error) throw error;
-    todasLinhas = todasLinhas.concat(data || []);
-    if (!data || data.length < TAMANHO_PAGINA) break;
-    inicio += TAMANHO_PAGINA;
+    return data || [];
+  };
+
+  const primeira = await buscarPagina(0);
+  let todasLinhas = primeira;
+  if (primeira.length < TAMANHO_PAGINA) return todasLinhas;
+
+  let proxima = 1;
+  while (true) {
+    const indices = Array.from({ length: PAGINAS_EM_PARALELO }, (_, i) => proxima + i);
+    const paginas = await Promise.all(indices.map(buscarPagina));
+    let acabou = false;
+    for (const pagina of paginas) {
+      todasLinhas = todasLinhas.concat(pagina);
+      if (pagina.length < TAMANHO_PAGINA) { acabou = true; break; }
+    }
+    if (acabou) break;
+    proxima += PAGINAS_EM_PARALELO;
   }
   return todasLinhas;
 }
@@ -5090,13 +5107,16 @@ let dadosEssenciaisCarregados = false;
 async function carregarDadosEssenciais() {
   if (dadosEssenciaisCarregados) return;
   try {
-    const dataTurnos = await buscarTodasLinhas(() => db.from('turnos').select('*').order('nome'));
+    // Turnos e colaboradores são buscados ao mesmo tempo.
+    const [dataTurnos, dataHeads] = await Promise.all([
+      buscarTodasLinhas(() => db.from('turnos').select('*').order('nome')),
+      buscarTodasLinhas(() => db.from('colaboradores').select('*').order('nome'))
+    ]);
     turnos = (dataTurnos || []).map(t => ({
       id: t.id, nome: t.nome, inicio: t.inicio, fim: t.fim,
       cor: t.cor || '#3483FA', escala: t.escala
     }));
 
-    const dataHeads = await buscarTodasLinhas(() => db.from('colaboradores').select('*').order('nome'));
     heads = (dataHeads || []).map(h => ({
       id: h.id, nome: h.nome, groot: h.groot_id, cpf: h.cpf,
       matriculaTpl: h.matricula_3pl, funcao: h.funcao, ext: h.ext,
@@ -5115,6 +5135,9 @@ async function carregarDadosEssenciais() {
 
 async function carregarDadosScheduling() {
   try {
+    // A lista de colaboradores dos schedulings começa a ser buscada junto.
+    const promessaSchedColab = buscarTodasLinhas(() => db.from('scheduling_colaboradores').select('*'));
+    promessaSchedColab.catch(() => {});
     const dataScheds = await buscarTodasLinhas(() => db.from('schedulings').select('*').order('data_inicio', { ascending: false }));
     schedulings = (dataScheds || []).map(s => ({
       id: s.id, numero: s.numero, turnoId: s.turno_id, grupo: s.grupo || null,
@@ -5122,7 +5145,7 @@ async function carregarDadosScheduling() {
     }));
 
     try {
-      const dataSchedColab = await buscarTodasLinhas(() => db.from('scheduling_colaboradores').select('*'));
+      const dataSchedColab = await promessaSchedColab;
       schedulingColaboradores = (dataSchedColab || []).map(l => ({
         id: l.id, schedulingId: l.scheduling_id, colaboradorId: l.colaborador_id
       }));
@@ -7437,9 +7460,35 @@ function fecharModal() {
 // ════════════════════════════════════════
 //  ABS — ABSENTEÍSMO (carregamento e helpers)
 // ════════════════════════════════════════
+// Busca o arquivo do atestado só quando o usuário clica em "Ver".
+async function abrirAnexoAbs(event, id) {
+  if (event) event.preventDefault();
+  const link = event?.currentTarget;
+  if (link) { link.style.pointerEvents = 'none'; link.textContent = '⏳ Abrindo...'; }
+  try {
+    const { data, error } = await db.from('absenteismo').select('anexo_nome,anexo_base64').eq('id', id).single();
+    if (error) throw error;
+    if (!data?.anexo_base64) { toast('Este registro não tem anexo.', 'error'); return; }
+    const a = document.createElement('a');
+    a.href = data.anexo_base64;
+    a.download = data.anexo_nome || 'atestado';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  } catch (error) {
+    console.error(error);
+    toast('Erro ao abrir o anexo: ' + (error.message || error), 'error');
+  } finally {
+    if (link) { link.style.pointerEvents = ''; link.textContent = '📎 Ver'; }
+  }
+}
+
 async function carregarAbsenteismo() {
   try {
-    const data = await buscarTodasLinhas(() => db.from('absenteismo').select('*').order('data_abs', { ascending: false }));
+    // Não baixa o arquivo do atestado (anexo_base64) junto da lista: ele é pesado
+    // e só é buscado quando alguém clica em "Ver" (abrirAnexoAbs).
+    const colunasAbs = 'id,colaborador_id,colaborador_ext,colaborador_nome,turno_id,gestor,data_abs,motivo,periodo_inicio,periodo_fim,anexo_nome,registrado_por,criado_em';
+    const data = await buscarTodasLinhas(() => db.from('absenteismo').select(colunasAbs).order('data_abs', { ascending: false }));
     absRegistros = (data || []).map(a => ({
       id: a.id,
       colaboradorId: a.colaborador_id,
@@ -7452,7 +7501,6 @@ async function carregarAbsenteismo() {
       periodoInicio: a.periodo_inicio,
       periodoFim: a.periodo_fim,
       anexoNome: a.anexo_nome,
-      anexoBase64: a.anexo_base64,
       registradoPor: a.registrado_por,
       criadoEm: a.criado_em
     }));
@@ -7893,8 +7941,8 @@ function renderTabelaAbsenteismo(lista) {
     const periodo = (a.motivo === 'atestado' && a.periodoInicio && a.periodoFim)
       ? `${a.periodoInicio.split('-').reverse().join('/')} – ${a.periodoFim.split('-').reverse().join('/')}`
       : '—';
-    const anexo = a.anexoBase64
-      ? `<a href="${a.anexoBase64}" download="${escapeHtml(a.anexoNome || 'atestado')}" class="badge badge-blue" style="text-decoration:none">📎 Ver</a>`
+    const anexo = a.anexoNome
+      ? `<a href="#" onclick="abrirAnexoAbs(event, '${safeId(a.id)}')" class="badge badge-blue" style="text-decoration:none">📎 Ver</a>`
       : '<span style="color:var(--text-hint);font-size:12px">—</span>';
     const acoes = pode('excluir_abs')
       ? `<button class="btn btn-secondary btn-sm" onclick="confirmarExcluirAbs('${a.id}')">Excluir</button>`
